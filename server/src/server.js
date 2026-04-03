@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from '../DB/db.js';
 import taskRoutes from '../routes/route.tasks.js';
+import userRoutes from '../routes/route.users.js';
 
 dotenv.config();
 const app = express();
@@ -14,6 +15,7 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use("/api", taskRoutes);
+app.use("/api", userRoutes);
 
 
 

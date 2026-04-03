@@ -1,22 +1,39 @@
 import Task from "../models/model.tasks.js";
+import User from "../models/model.users.js";
+import mongoose from "mongoose";
 
 
 export const createTask = async (req, res) => {
     try {
 
-        const { title } = req.body;
+        const { title, assignedTo } = req.body;
 
         if (!title) {
             return res.status(400).json({ message: "Title is required" });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(assignedTo)) {
+            return res.status(400).json({ message: "Invalid assigned user id" });
+        }
+
+        const user = await User.findById(assignedTo);
+        if (!user) {
+            return res.status(404).json({ message: "Assigned user not found" });
+        }
+
+
         const newTask = new Task({
-            title: req.body.title,
+            title: title,
+            assignedTo: assignedTo,
             history: [{ status: "Todo", time: new Date() }]
         });
 
         const savedTask = await newTask.save();
-        res.json(savedTask);
+        await savedTask.populate("assignedTo", "name email role");
+        res.status(201).json({ 
+            message: "Task created successfully",
+            task: savedTask
+         });
     } catch (err) {
         res.status(500).json(err);
     }
@@ -25,7 +42,7 @@ export const createTask = async (req, res) => {
 
 export const getAllTasks = async (req, res) => {
     try {
-        const tasks = await Task.find();
+        const tasks = await Task.find().populate("assignedTo", "name email role");
         res.json({
             message: "Tasks retrieved successfully",
             tasks

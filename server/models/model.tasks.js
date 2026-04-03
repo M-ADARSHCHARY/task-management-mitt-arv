@@ -9,6 +9,11 @@ const taskSchema = new mongoose.Schema({
         type: String,
         default: "Todo"
     },
+
+    assignedTo: {
+        type: mongoose.Schema.Types.ObjectId, ref: "User", required: true
+    },
+    
     history: [
         {
             status: String,
