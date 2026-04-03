@@ -1,29 +1,42 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteTaskThunk, updateTaskStatusThunk } from "../store/task/taskThunk";
 
-function TaskCard({ task, updateStatus, deleteTask }) {
+function TaskCard({ task }) {
+  const dispatch = useDispatch();
+  const {deletingTaskId} = useSelector((state) => state.tasks);
   const assignedUser = task?.assignedTo;
-  console.log("assignedUser:", assignedUser);
+  const isDeleting = deletingTaskId === task._id;
+  const displayStatus = task.status === "Todo" ? "Product Backlog" : task.status;
+
+  const handleStatusChange = (newStatus) => {
+    dispatch(updateTaskStatusThunk({ id: task._id, newStatus }));
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteTaskThunk(task._id));
+  };
 
   return (
-    <div className="m-2 rounded-2xl border border-white/10 bg-slate-900 p-4 text-slate-100 shadow-lg shadow-black/10">
+    <div className="m-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-900 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-lg font-semibold">{task.title}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-cyan-300">
-            {task.status}
+          <p className="mt-1 text-xs uppercase tracking-[0.2em] text-sky-700">
+            {displayStatus}
           </p>
         </div>
-        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+        <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs text-slate-600">
           {assignedUser?.name || "Unassigned"}
         </span>
       </div>
 
-      <div className="mt-3 text-sm text-slate-400">
+      <div className="mt-3 text-sm text-slate-600">
         <p>
-          <span className="text-slate-200">Email:</span> {assignedUser?.email || "N/A"}
+          <span className="text-slate-800">Email:</span> {assignedUser?.email || "N/A"}
         </p>
         <p>
-          <span className="text-slate-200">Role:</span> {assignedUser?.role || "N/A"}
+          <span className="text-slate-800">Role:</span> {assignedUser?.role || "N/A"}
         </p>
       </div>
 
@@ -31,30 +44,31 @@ function TaskCard({ task, updateStatus, deleteTask }) {
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <select
           value={task.status}
-          onChange={(e) => updateStatus(task._id, e.target.value)}
-          className="rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm outline-none"
+          onChange={(e) => handleStatusChange(e.target.value)}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none"
         >
-          <option value="Todo">Todo</option>
+          <option value="Todo">Product Backlog</option>
           <option value="InProgress">In Progress</option>
           <option value="Done">Done</option>
         </select>
        
         <button
-          className="hover:cursor-pointer rounded-xl bg-rose-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-rose-400"
-          onClick={() => deleteTask(task._id)}
+          className="hover:cursor-pointer rounded-xl bg-rose-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={handleDelete}
+          disabled={isDeleting}
         >
-          delete
+          {isDeleting ? "Deleting..." : "delete"}
         </button>
       </div>
 
       {/* History */}
-      <details className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
-        <summary className="cursor-pointer text-sm font-medium text-slate-200">
+      <details className="mt-4 rounded-xl border border-slate-300 bg-white p-3">
+        <summary className="cursor-pointer text-sm font-medium text-slate-700">
           View history
         </summary>
-        <div className="mt-3 space-y-2 text-sm text-slate-300">
+        <div className="mt-3 space-y-2 text-sm text-slate-700">
           {task?.history?.map((h, i) => (
-            <p key={i} className="rounded-lg bg-slate-800 px-3 py-2">
+            <p key={i} className="rounded-lg bg-slate-100 px-3 py-2">
               {h.status} - {new Date(h.time).toLocaleString()}
             </p>
           ))}
