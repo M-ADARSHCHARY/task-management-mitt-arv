@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "./api/axiosInstance.js";
 import Column from "./components/Column";
+import toast from "react-hot-toast";
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -60,7 +61,10 @@ function App() {
 
   const createUser = async () => {
     try {
-      if (!userForm.name.trim() || !userForm.email.trim()) return;
+      if (!userForm.name.trim() || !userForm.email.trim()) {
+        toast.error("Name and email are required");
+        return;
+      }
 
       await axiosInstance.post("/users", {
         name: userForm.name,
@@ -76,14 +80,19 @@ function App() {
         active: true,
       });
       fetchUsers();
+      toast.success("User created successfully");
     } catch (err) {
       console.log(err);
+      toast.error(err?.response?.data?.message || "Failed to create user");
     }
   };
 
   // Add task
   const addTask = async () => {
-    if (!title || !selectedUserId) return;
+    if (!title || !selectedUserId) {
+      toast.error("Task title and assignee are required");
+      return;
+    }
 
     try {
       const result = await axiosInstance.post("/tasks", {
@@ -94,9 +103,11 @@ function App() {
       const newTask = result.data.task;
 
       setTasks((prev) => [...prev, newTask]);
+      toast.success("Task created successfully");
 
     } catch (err) {
       console.log(err);
+      toast.error(err?.response?.data?.message || "Failed to create task");
     }
   };
 
@@ -112,9 +123,11 @@ function App() {
       setTasks((prev) =>
         prev.map((t) => (t._id === id ? { ...t, status: newStatus, history: updatedTask.history } : t))
       );
+      toast.success("Task updated successfully");
 
     } catch (err) {
       console.log(err);
+      toast.error(err?.response?.data?.message || "Failed to update task");
     }
   };
 
@@ -122,8 +135,10 @@ function App() {
     try {
       await axiosInstance.delete(`/tasks/${id}`);
       setTasks((prev) => prev.filter((t) => t._id !== id));
+      toast.success("Task deleted successfully");
     } catch (err) {
       console.log(err);
+      toast.error(err?.response?.data?.message || "Failed to delete task");
     }
   }
 
