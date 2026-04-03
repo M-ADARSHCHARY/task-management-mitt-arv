@@ -1,9 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from '../DB/db.js';
-import taskRoutes from '../routes/route.tasks.js';
-import userRoutes from '../routes/route.users.js';
+import connectDB from './DB/db.js';
+import taskRoutes from './routes/route.tasks.js';
+import userRoutes from './routes/route.users.js';
 
 dotenv.config();
 const app = express();
@@ -12,7 +12,9 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URI || "http://localhost:5173",
+}));
 app.use(express.json());
 app.use("/api", taskRoutes);
 app.use("/api", userRoutes);
