@@ -89,8 +89,8 @@ server/
 
 ### 1. Clone Repository
 ```
-git clone <repo-url>
-cd <repo-folder>
+git clone [<repo-url>](https://github.com/M-ADARSHCHARY/task-management-mitt-arv.git)
+cd task-management-mitt-arv
 ```
 
 ---
